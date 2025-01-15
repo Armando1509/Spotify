@@ -3,7 +3,6 @@ const mongoose = require("mongoose");
 const { Schema, model } = mongoose;
 
 const UserSchema = new Schema({
-  id: { type: String, required: true },
   name: { type: String, required: true },
   surname: { type: String, required: true },
   nick: { type: String, required: true },
