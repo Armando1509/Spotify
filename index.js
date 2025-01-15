@@ -23,6 +23,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // cargar configuracion de rutas
+const UserRoutes = require('./routes/user');
+/* const AlbumRoutes = require('./routes/album');
+const ArtistRoutes = require('./routes/artirts');
+const SongRoutes = require('./routes/song');
+ */
+app.use("/user", UserRoutes);
 
 // ruta de prueba
 app.get('/ruta-probando', (req, res) => {
