@@ -1,5 +1,5 @@
 const {Schema, model} = require('mongoose');
-const { create } = require('./albums');
+
 
 const SongSchema = Schema({
     albums: {type: Schema.Types.ObjectId, ref: 'Album', required: true},
@@ -10,3 +10,5 @@ const SongSchema = Schema({
     file: {type: String, required: true},
     create_at: {type: Date, default: Date.now}
 })
+
+module.exports = model('Song', SongSchema, 'songs');

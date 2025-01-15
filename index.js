@@ -13,7 +13,7 @@ connection();
 
 // crear servidor de node
 const app = express(); 
-const port = 3910; 
+const port = process.env.PORT || 3001; // Cambia 3000 a 3001 o cualquier otro puerto disponible
 
 // configurar cors
 app.use(cors());
@@ -24,11 +24,15 @@ app.use(express.urlencoded({ extended: true }));
 
 // cargar configuracion de rutas
 const UserRoutes = require('./routes/user');
-/* const AlbumRoutes = require('./routes/album');
+const AlbumRoutes = require('./routes/album');
 const ArtistRoutes = require('./routes/artirts');
 const SongRoutes = require('./routes/song');
- */
+
+
 app.use("/user", UserRoutes);
+app.use("/album", AlbumRoutes);
+app.use("/artist", ArtistRoutes);
+app.use("/song", SongRoutes);
 
 // ruta de prueba
 app.get('/ruta-probando', (req, res) => {

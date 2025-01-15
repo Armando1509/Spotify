@@ -7,4 +7,4 @@ const AlbumSchema = new Schema({
     created_at: { type: Date, default: Date.now }
 });
 
-module.exports = model('Album', AlbumSchema, albums);
+module.exports = model('Album', AlbumSchema, "albums");

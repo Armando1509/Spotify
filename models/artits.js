@@ -1,6 +1,4 @@
-const mongoose = require('mongoose');
-
-const Schema = mongoose.Schema;
+const {Schema, model} = require('mongoose');
 
 const ArtistSchema = Schema({
     user : { type: Schema.ObjectId, ref: 'User' },
@@ -10,4 +8,4 @@ const ArtistSchema = Schema({
     created_at: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model('Artist', ArtistSchema, artists);
+module.exports = model('Artist', ArtistSchema, "artists");
