@@ -7,6 +7,7 @@ const mongoosePaginate = require("mongoose-pagination");
 const fs = require("fs");
 const path = require("path");
 
+
 // modulo de prueba
 const prueba = (req, res) => {
   return res.status(200).send("Modulo de prueba User");
@@ -126,10 +127,11 @@ const update = async (req, res) => {
 
   // validar datos
   try {
-    validate(userToUpdate)
+    validate(userToUpdate);
   } catch (error) {
-    return res.status(400).send({ error: "no cumples con la notacion adecuada" });
-    
+    return res
+      .status(400)
+      .send({ error: "no cumples con la notacion adecuada" });
   }
 
   // comprobar si el usuario existe
@@ -181,8 +183,48 @@ const update = async (req, res) => {
 };
 
 const upload = async (req, res) => {
-  return res.status(200).send("Modulo de upload User");
-}
+  // configuracion de subida (multer)
+
+  // Recoger fichero y comprobar si existe
+  if (!req.file) {
+    return res.status(404).send({ error: "La peticion no incluye imagen" });
+  }
+  // conseguir nombre del archivo
+  let image = req.file.originalname;
+  // sacar extension de la imagen
+  let imageSplit = image.split(".");
+  const extension = imageSplit[1];
+  // comprobar extension (solo imagenes), si no es valida borrar archivo subido
+  if (
+    extension != "png" &&
+    extension != "jpg" &&
+    extension != "jpeg" &&
+    extension != "gif"
+  ) {
+    // borrar archivo subido
+    const filePath = req.file.path;
+    const fileDelete = fs.unlinkSync(filePath);
+    // devolver el error
+    return res
+      .status(400)
+      .send({ error: "La extension de la imagen no es válida" });
+  }
+  // Si es correcto guardar imagen en la bbdd
+  let imageUser = await User.findByIdAndUpdate(
+    { _id: req.user.id },
+    { image: req.file.filename },
+    { new: true }
+  );
+  if (!imageUser) {
+    return res.status(500).send({ error: "Error al subir la imagen" });
+  }
+  return res.status(200).send({
+    status: "success",
+    message: "Método de upload",
+    user: imageUser,
+    file: req.file,
+  });
+};
 
 module.exports = {
   prueba,
@@ -190,4 +232,5 @@ module.exports = {
   login,
   profile,
   update,
+  upload,
 };
