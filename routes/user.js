@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');  
 const UserController = require('../controllers/user');
+const check = require('../middlewares/auth');
 
 // configurar multer
 const storage = multer.diskStorage({
@@ -13,8 +14,9 @@ const storage = multer.diskStorage({
 });
 
 // definir rutas
-router.get('/prueba', UserController.prueba);
+router.get('/prueba',check.auth, UserController.prueba);
 router.post('/register', UserController.register);
 router.post('/login', UserController.login);
+router.get("/profile/:id", check.auth, UserController.profile);
 
 module.exports = router;

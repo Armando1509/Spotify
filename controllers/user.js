@@ -96,8 +96,31 @@ const login = async (req, res) => {
     return res.status(500).send({ error: "esto esta muerto" });
   }
 };
+
+const profile = async (req, res) => {
+  // Recoger el id de la url
+  const userId = req.params.id;
+  // consultar para sacar los datos del perfil
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).send({ error: "El usuario no existe" });
+    }
+    /* // Eliminar la propiedad password del objeto user
+    let userFound = user.toObject();
+    delete userFound.password; */
+    return res.status(200).send({
+      status: "success",
+      message: "Método de profile",
+      user: user,
+    });
+  } catch (error) {
+    return res.status(500).send({ error: "esto esta muerto" });
+  }
+}
 module.exports = {
   prueba,
   register,
   login,
+  profile,
 };
