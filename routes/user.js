@@ -14,5 +14,6 @@ const storage = multer.diskStorage({
 
 // definir rutas
 router.get('/prueba', UserController.prueba);
+router.post('/register', UserController.register);
 
 module.exports = router;
