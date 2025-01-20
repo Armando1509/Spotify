@@ -68,7 +68,9 @@ const login = async (req, res) => {
   }
   // Bucar en la BD si existe el email
   try {
-    const user = await User.findOne({ email: params.email }).select("+password +role");
+    const user = await User.findOne({ email: params.email }).select(
+      "+password +role"
+    );
     // comprobar si existe el usuario
     if (!user) {
       return res.status(404).send({ error: "El usuario no existe" });
@@ -106,9 +108,6 @@ const profile = async (req, res) => {
     if (!user) {
       return res.status(404).send({ error: "El usuario no existe" });
     }
-    /* // Eliminar la propiedad password del objeto user
-    let userFound = user.toObject();
-    delete userFound.password; */
     return res.status(200).send({
       status: "success",
       message: "Método de profile",
@@ -117,10 +116,78 @@ const profile = async (req, res) => {
   } catch (error) {
     return res.status(500).send({ error: "esto esta muerto" });
   }
+};
+
+const update = async (req, res) => {
+  // recorger los datos del usuario identificado
+  let userIdentity = req.user;
+  // recoger datos a actualizar
+  let userToUpdate = req.body;
+
+  // validar datos
+  try {
+    validate(userToUpdate)
+  } catch (error) {
+    return res.status(400).send({ error: "no cumples con la notacion adecuada" });
+    
+  }
+
+  // comprobar si el usuario existe
+  try {
+    let users = await User.find({
+      $or: [
+        { email: userToUpdate.email.toLowerCase() },
+        { nick: userToUpdate.nick.toLowerCase() },
+      ],
+    });
+    if (!users) {
+      return res.status(404).send({ error: "El usuario no existe" });
+    }
+
+    // comprobar si usuario existe y no soy yo mismo
+    let user_isset = false;
+    users.forEach((user) => {
+      if (user && user._id != userIdentity.id) {
+        user_isset = true;
+      }
+    });
+    // si ya existe devuelvo una respuesta
+    if (user_isset) {
+      return res.status(404).send({ error: "El usuario ya existe" });
+    }
+
+    // cifrar contraseña
+    if (userToUpdate.password) {
+      let pwd = await bcrypt.hash(userToUpdate.password, 10);
+      userToUpdate.password = pwd; // Asegúrate de actualizar params.password
+    } else {
+      delete userToUpdate.password;
+    }
+
+    // buscar y actualizar documento
+    let userUpdated = await User.findByIdAndUpdate(
+      userIdentity.id,
+      userToUpdate,
+      { new: true }
+    );
+    return res.status(200).send({
+      status: "success",
+      message: "Método de update",
+      user: userUpdated,
+    });
+  } catch (error) {
+    return res.status(500).send({ error: "Error al actualizar usuario" });
+  }
+};
+
+const upload = async (req, res) => {
+  return res.status(200).send("Modulo de upload User");
 }
+
 module.exports = {
   prueba,
   register,
   login,
   profile,
+  update,
 };

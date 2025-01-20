@@ -18,5 +18,6 @@ router.get('/prueba',check.auth, UserController.prueba);
 router.post('/register', UserController.register);
 router.post('/login', UserController.login);
 router.get("/profile/:id", check.auth, UserController.profile);
+router.put("/update/", check.auth, UserController.update);
 
 module.exports = router;
