@@ -38,7 +38,22 @@ const save = async (req, res) => {
   }
 };
 
+const one = async (req, res) => {
+  let id = req.params.id;
+  try {
+    let artits = await Atirst.findById(id);
+    if (!artits) {
+      return res.status(404).send({ error: "El artista no existe" });
+    } else {
+        return res.status(200).send({ artits });
+        }
+  } catch (error) {
+    return res.status(500).send({ error: "esto esta muerto" });
+  }
+}
+
 module.exports = {
   prueba,
   save,
+  one,
 };

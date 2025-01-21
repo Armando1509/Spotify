@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const ArtistController = require('../controllers/artirts');
+const check = require("../middlewares/auth");
 
 // configurar multer
 const storage = multer.diskStorage({
@@ -14,6 +15,7 @@ const storage = multer.diskStorage({
 
 // definir rutas
 router.get('/prueba', ArtistController.prueba);
-router.post('/save', ArtistController.save);
+router.post('/save', check.auth, ArtistController.save);
+router.get('/one/:id', check.auth, ArtistController.one);
 
 module.exports = router;
