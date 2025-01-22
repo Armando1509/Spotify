@@ -97,10 +97,30 @@ const update = async (req, res) => {
   }
 }
 
+const remove = async (req, res) => {
+  // sacar el id del artista de la url
+  let id = req.params.id;
+  // hacer consulta para buscar y eliminar el artista
+  try {
+    let artits = await Atirst.findByIdAndDelete(id);
+    if (!artits) {
+      return res.status(404).send({ error: "El artista no existe" });
+    } else {
+        return res.status(200).send({ 
+        status: "success",
+        message: "El artista se ha eliminado",
+        artits 
+        });
+        }
+  } catch (error) {
+    return res.status(500).send({ error: "esto esta muerto" });
+  }
+}
 module.exports = {
   prueba,
   save,
   one,
   list,
   update,
+  remove,
 };
