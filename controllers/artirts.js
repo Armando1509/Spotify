@@ -81,9 +81,26 @@ const list = async (req, res) => {
   return res.status(200).send("Modulo de prueba de list");
 }
 
+const update = async (req, res) => {
+  let id = req.params.id;
+  let params = req.body;
+  try {
+    let artits = await Atirst.findByIdAndUpdate(id, params, {new: true});
+    
+    if (!artits) {
+      return res.status(404).send({ error: "El artista no existe" });
+    } else {
+        return res.status(200).send({ artits });
+        }
+  } catch (error) {
+    return res.status(500).send({ error: "esto esta muerto" });
+  }
+}
+
 module.exports = {
   prueba,
   save,
   one,
   list,
+  update,
 };
