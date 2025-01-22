@@ -17,5 +17,6 @@ const storage = multer.diskStorage({
 router.get('/prueba', ArtistController.prueba);
 router.post('/save', check.auth, ArtistController.save);
 router.get('/one/:id', check.auth, ArtistController.one);
+router.get('/list/:page?', check.auth, ArtistController.list);
 
 module.exports = router;
