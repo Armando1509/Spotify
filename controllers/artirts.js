@@ -1,4 +1,6 @@
 const Atirst = require("../models/artits");
+const fs = require("fs");
+const path = require("path");
 
 const prueba = (req, res) => {
   return res.status(200).send("Modulo de prueba de artirts");
@@ -116,6 +118,74 @@ const remove = async (req, res) => {
     return res.status(500).send({ error: "esto esta muerto" });
   }
 }
+
+const upload = async (req, res) => {
+  // configuracion de subida (multer)
+
+  // recoger artist id
+  let artistId = req.params.id;
+
+  // Recoger fichero y comprobar si existe
+  if (!req.file) {
+    return res.status(404).send({ error: "La peticion no incluye imagen" });
+  }
+  // conseguir nombre del archivo
+  let image = req.file.originalname;
+  // sacar extension de la imagen
+  let imageSplit = image.split(".");
+  const extension = imageSplit[1];
+  // comprobar extension (solo imagenes), si no es valida borrar archivo subido
+  if (
+    extension != "png" &&
+    extension != "jpg" &&
+    extension != "jpeg" &&
+    extension != "gif"
+  ) {
+    // borrar archivo subido
+    const filePath = req.file.path;
+    const fileDelete = fs.unlinkSync(filePath);
+    // devolver el error
+    return res
+      .status(400)
+      .send({ error: "La extension de la imagen no es válida" });
+  }
+  // Si es correcto guardar imagen en la bbdd
+  let imageArtist = await Atirst.findByIdAndUpdate(
+    { _id: artistId },
+    { image: req.file.filename },
+    { new: true }
+  );
+  if (!imageArtist) {
+    return res.status(500).send({ error: "Error al subir la imagen" });
+  }
+  return res.status(200).send({
+    status: "success",
+    message: "Método de upload",
+    artist: imageArtist,
+    file: req.file,
+  });
+};
+
+const image = async (req, res) => {
+// Sacar el parametro de la url
+const file = req.params.file;
+
+// montar el path real de la imagen
+const filePath = path.resolve(__dirname, "../uploads/artists", file);
+
+// comprobar si existe la imagen
+fs.stat(filePath, (exists) => {
+  if (exists) {
+    return res.status(400).send({
+      status: "Error",
+      message: "does not exist",
+      avatar: file,
+    }) 
+}
+// devolver
+return res.sendFile(filePath);
+});
+}
 module.exports = {
   prueba,
   save,
@@ -123,4 +193,6 @@ module.exports = {
   list,
   update,
   remove,
+  upload,
+  image,
 };
