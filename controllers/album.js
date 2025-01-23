@@ -56,8 +56,40 @@ const one = async (req, res) => {
   }
 };
 
+const list = async (req, res) => {
+    // paginacion
+    let page = 1;
+    if (req.params.page){
+        page = req.params.page;
+    }
+    let itemsPerPage = 5;
+  try {
+    let totalAlbums = await Album.countDocuments({});
+    let albums = await Album.find({}).populate("artist").sort("title").paginate(page, itemsPerPage);
+    if (!albums) {
+      return res.status(404).send({
+        status: "error",
+        message: "No hay albums para mostrar",
+      });
+    } else {
+      return res.status(200).send({
+        status: "success",
+        albums: albums,
+        totalAlbums: totalAlbums,
+        totalPages: Math.ceil(totalAlbums/itemsPerPage)
+      });
+    }
+  } catch (error) {
+    return res.status(500).send({
+      status: "error",
+      message: "Error al buscar los albums",
+    });
+  }
+};
+
 module.exports = {
   prueba,
   save,
   one,
+  list,
 };
