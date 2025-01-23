@@ -1,4 +1,6 @@
 const Atirst = require("../models/artits");
+const Album = require("../models/albums");
+const Song = require("../models/songs");
 const fs = require("fs");
 const path = require("path");
 
@@ -105,13 +107,17 @@ const remove = async (req, res) => {
   // hacer consulta para buscar y eliminar el artista
   try {
     let artits = await Atirst.findByIdAndDelete(id);
+    let albumRemove = await Album.deleteMany({ artist: id });
+    let songRemove = await Song.deleteMany({ album: albumRemove._id });
     if (!artits) {
       return res.status(404).send({ error: "El artista no existe" });
     } else {
         return res.status(200).send({ 
         status: "success",
         message: "El artista se ha eliminado",
-        artits 
+        artits,
+        albumRemove,
+        songRemove 
         });
         }
   } catch (error) {
