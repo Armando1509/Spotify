@@ -57,15 +57,19 @@ const one = async (req, res) => {
 };
 
 const list = async (req, res) => {
-    // paginacion
-    let page = 1;
-    if (req.params.page){
-        page = req.params.page;
-    }
-    let itemsPerPage = 5;
+  let artistId = req.params.artistId;
+  // paginacion
+  let page = 1;
+  if (req.params.page) {
+    page = req.params.page;
+  }
+  let itemsPerPage = 5;
+  // buscar los albums del artista que me llega por params
   try {
-    let totalAlbums = await Album.countDocuments({});
-    let albums = await Album.find({}).populate("artist").sort("title").paginate(page, itemsPerPage);
+    let albums = await Album.find({ artist: artistId })
+      /* .populate("artist") */
+      .sort("title")
+      .paginate(page, itemsPerPage);
     if (!albums) {
       return res.status(404).send({
         status: "error",
@@ -74,9 +78,9 @@ const list = async (req, res) => {
     } else {
       return res.status(200).send({
         status: "success",
-        albums: albums,
-        totalAlbums: totalAlbums,
-        totalPages: Math.ceil(totalAlbums/itemsPerPage)
+        albums,
+       /*  totalItems: totalAlbums,
+        pages: Math.ceil(totalAlbums / itemsPerPage), */
       });
     }
   } catch (error) {
