@@ -82,9 +82,38 @@ const list = async (req, res) => {
   }
 };
 
+const update = async (req, res) => {
+  let albumId = req.params.id;
+  let update = req.body;
+
+  try {
+    let albumUpdated = await Album.findByIdAndUpdate(albumId, update, {
+      new: true,
+    });
+
+    if (!albumUpdated) {
+      return res.status(404).send({
+        status: "error",
+        message: "No se ha actualizado el album",
+      });
+    } else {
+      return res.status(200).send({
+        status: "success",
+        album: albumUpdated,
+      });
+    }
+  } catch (error) {
+    return res.status(500).send({
+      status: "error",
+      message: "Error al actualizar el album",
+    });
+  }
+}; 
+
 module.exports = {
   prueba,
   save,
   one,
   list,
+  update,
 };
