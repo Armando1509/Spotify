@@ -38,7 +38,33 @@ const save = async (req, res) => {
   }
 };
 
+const one = async (req, res) => {
+    let songId = req.params.id;
+    
+    try {
+        let song = await Songs.findById(songId);
+        if (!song) {
+        return res.status(404).send({
+            status: "error",
+            message: "La cancion no existe",
+        });
+        } else {
+        return res.status(200).send({
+            status: "success",
+            song: song,
+        });
+        }
+    } catch (error) {
+        return res.status(500).send({
+        status: "error",
+        message: "Error al buscar la cancion",
+        error: error,
+        });
+    }
+    }
+
 module.exports = {
   prueba,
   save,
+  one,
 };
