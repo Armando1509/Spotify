@@ -1,3 +1,4 @@
+const path = require("path");
 const Songs = require("../models/songs");
 
 const prueba = (req, res) => {
@@ -39,32 +40,63 @@ const save = async (req, res) => {
 };
 
 const one = async (req, res) => {
-    let songId = req.params.id;
-    
-    try {
-        let song = await Songs.findById(songId);
-        if (!song) {
-        return res.status(404).send({
-            status: "error",
-            message: "La cancion no existe",
-        });
-        } else {
-        return res.status(200).send({
-            status: "success",
-            song: song,
-        });
-        }
-    } catch (error) {
-        return res.status(500).send({
+  let songId = req.params.id;
+
+  try {
+    let song = await Songs.findById(songId).populate("album");
+    if (!song) {
+      return res.status(404).send({
         status: "error",
-        message: "Error al buscar la cancion",
-        error: error,
-        });
+        message: "La cancion no existe",
+      });
+    } else {
+      return res.status(200).send({
+        status: "success",
+        song: song,
+      });
     }
+  } catch (error) {
+    return res.status(500).send({
+      status: "error",
+      message: "Error al buscar la cancion",
+      error: error,
+    });
+  }
+};
+const list = async (req, res) => {
+  // Recoger id del album de la url
+  let albumId = req.params.id;
+  // Hacer una consulta a la base de datos para sacar las canciones de ese album
+  try {
+    let totalSongs = await Songs.find({ album: albumId }).countDocuments();
+    let songs = await Songs.find({ album: albumId }).populate({
+      path: "album",
+      populate: { path: "artist" },
+    }).sort("track")
+    if (!songs) {
+      return res.status(404).send({
+        status: "error",
+        message: "No hay canciones para este album",
+      });
+    } else {
+      return res.status(200).send({
+        status: "success",
+        totalSongs: totalSongs,
+        songs: songs,
+      });
     }
+  } catch (error) {
+    return res.status(500).send({
+      status: "error",
+      message: "Error al buscar las canciones",
+      error: error,
+    });
+  }
+};
 
 module.exports = {
   prueba,
   save,
   one,
+  list,
 };
