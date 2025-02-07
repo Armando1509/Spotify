@@ -10,7 +10,7 @@ const check = require('../middlewares/auth');
 const storage = multer.diskStorage({
     destination: path.join(__dirname, '../uploads/songs'),
     filename: (req, file, cb) => {
-        cb(null, new Date().getTime() + path.extname(file.originalname));
+        cb(null, "artists-" + Date.now() + "-" + file.originalname);
     }
 });
 
@@ -19,5 +19,9 @@ router.get('/prueba', SongController.prueba);
 router.post('/save', check.auth, SongController.save);
 router.get('/one/:id', check.auth, SongController.one);
 router.get('/list/:id', check.auth, SongController.list);
+router.put('/update/:id', check.auth, SongController.update);
+router.delete('/erase/:id', check.auth, SongController.erase);
+router.post('/upload/:id', check.auth, multer({ storage }).single('file0'), SongController.upload);
+router.get('/audio/:file', SongController.audio);
 
 module.exports = router;
