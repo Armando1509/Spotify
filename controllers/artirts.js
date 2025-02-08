@@ -49,17 +49,17 @@ const one = async (req, res) => {
     if (!artits) {
       return res.status(404).send({ error: "El artista no existe" });
     } else {
-        return res.status(200).send({ artits });
-        }
+      return res.status(200).send({ artits });
+    }
   } catch (error) {
     return res.status(500).send({ error: "esto esta muerto" });
   }
-}
+};
 
 const list = async (req, res) => {
   // sacar la posible pagina
-  let page = req.params.page
-  if(req.params.page){
+  let page = req.params.page;
+  if (req.params.page) {
     page = req.params.page;
   }
   // definir numero de elementos por pagina
@@ -67,63 +67,70 @@ const list = async (req, res) => {
   // find, ordenarlo y paginarlo
   try {
     let total = await Atirst.countDocuments();
-    let artits = await Atirst.find().sort('name').paginate(page, itemsPerPage);
+    let artits = await Atirst.find().sort("name").paginate(page, itemsPerPage);
     if (!artits) {
       return res.status(404).send({ error: "No hay artistas" });
     } else {
-        return res.status(200).send({ 
+      return res.status(200).send({
         status: "success",
         artistas: artits,
         itemsPerPage,
         total,
-        pages: Math.ceil(total/itemsPerPage)
-         });
-        }
+        pages: Math.ceil(total / itemsPerPage),
+      });
+    }
   } catch (error) {
     return res.status(500).send({ error: "esto esta muerto" });
   }
   return res.status(200).send("Modulo de prueba de list");
-}
+};
 
 const update = async (req, res) => {
   let id = req.params.id;
   let params = req.body;
   try {
-    let artits = await Atirst.findByIdAndUpdate(id, params, {new: true});
-    
+    let artits = await Atirst.findByIdAndUpdate(id, params, { new: true });
+
     if (!artits) {
       return res.status(404).send({ error: "El artista no existe" });
     } else {
-        return res.status(200).send({ artits });
-        }
+      return res.status(200).send({ artits });
+    }
   } catch (error) {
     return res.status(500).send({ error: "esto esta muerto" });
   }
-}
+};
 
 const remove = async (req, res) => {
-  // sacar el id del artista de la url
   let id = req.params.id;
-  // hacer consulta para buscar y eliminar el artista
+
   try {
-    let artits = await Atirst.findByIdAndDelete(id);
-    let albumRemove = await Album.deleteMany({ artist: id });
-    let songRemove = await Song.deleteMany({ album: albumRemove._id });
-    if (!artits) {
+    let artist = await Atirst.findByIdAndDelete(id);
+    if (!artist) {
       return res.status(404).send({ error: "El artista no existe" });
-    } else {
-        return res.status(200).send({ 
-        status: "success",
-        message: "El artista se ha eliminado",
-        artits,
-        albumRemove,
-        songRemove 
-        });
-        }
+    }
+
+    let albums = await Album.find({ artist: id });
+
+    await Album.deleteMany({ artist: id });
+
+    for (let album of albums) {
+      let result = await Song.deleteMany({ album: album._id });
+    }
+
+    return res.status(200).send({
+      status: "success",
+      message:
+        "El artista y sus álbumes y canciones asociadas se han eliminado",
+      artist,
+      albums,
+    });
   } catch (error) {
-    return res.status(500).send({ error: "esto esta muerto" });
+    return res
+      .status(500)
+      .send({ message: "Error al eliminar el artista", error });
   }
-}
+};
 
 const upload = async (req, res) => {
   // configuracion de subida (multer)
@@ -173,25 +180,25 @@ const upload = async (req, res) => {
 };
 
 const image = async (req, res) => {
-// Sacar el parametro de la url
-const file = req.params.file;
+  // Sacar el parametro de la url
+  const file = req.params.file;
 
-// montar el path real de la imagen
-const filePath = path.resolve(__dirname, "../uploads/artists", file);
+  // montar el path real de la imagen
+  const filePath = path.resolve(__dirname, "../uploads/artists", file);
 
-// comprobar si existe la imagen
-fs.stat(filePath, (exists) => {
-  if (exists) {
-    return res.status(400).send({
-      status: "Error",
-      message: "does not exist",
-      avatar: file,
-    }) 
-}
-// devolver
-return res.sendFile(filePath);
-});
-}
+  // comprobar si existe la imagen
+  fs.stat(filePath, (exists) => {
+    if (exists) {
+      return res.status(400).send({
+        status: "Error",
+        message: "does not exist",
+        avatar: file,
+      });
+    }
+    // devolver
+    return res.sendFile(filePath);
+  });
+};
 module.exports = {
   prueba,
   save,

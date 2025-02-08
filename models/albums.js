@@ -1,7 +1,7 @@
 const { Schema, model } = require('mongoose');
 
 const AlbumSchema = new Schema({
-    artist: { type: Schema.ObjectId, ref: 'Artist', required: true },
+    artist: { type: Schema.ObjectId, ref: 'Artist'},
     title: { type: String, required: true },
     description: { type: String},
     year: { type: Number, required: true },
